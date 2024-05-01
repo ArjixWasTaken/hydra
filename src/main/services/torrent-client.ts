@@ -1,8 +1,5 @@
-import path from "node:path";
-import cp from "node:child_process";
-import fs from "node:fs";
 import * as Sentry from "@sentry/electron/main";
-import { Notification, app, dialog } from "electron";
+import { Notification } from "electron";
 import type { QueryDeepPartialEntity } from "typeorm/query-builder/QueryPartialEntity";
 
 import { Game } from "@main/entity";
@@ -10,11 +7,6 @@ import { gameRepository, userPreferencesRepository } from "@main/repository";
 import { t } from "i18next";
 import { WindowManager } from "./window-manager";
 
-const binaryNameByPlatform: Partial<Record<NodeJS.Platform, string>> = {
-  darwin: "hydra-download-manager",
-  linux: "hydra-download-manager",
-  win32: "hydra-download-manager.exe",
-};
 
 enum TorrentState {
   CheckingFiles = 1,
@@ -41,46 +33,10 @@ export const BITTORRENT_PORT = "5881";
 
 export class TorrentClient {
   public static startTorrentClient(
-    writePipePath: string,
-    readPipePath: string
+    _writePipePath: string,
+    _readPipePath: string
   ) {
-    const commonArgs = [BITTORRENT_PORT, writePipePath, readPipePath];
-
-    if (app.isPackaged) {
-      const binaryName = binaryNameByPlatform[process.platform]!;
-      const binaryPath = path.join(
-        process.resourcesPath,
-        "hydra-download-manager",
-        binaryName
-      );
-
-      if (!fs.existsSync(binaryPath)) {
-        dialog.showErrorBox(
-          "Fatal",
-          "Hydra download manager binary not found. Please check if it has been removed by Windows Defender."
-        );
-
-        app.quit();
-      }
-
-      cp.spawn(binaryPath, commonArgs, {
-        stdio: "inherit",
-        windowsHide: true,
-      });
-      return;
-    }
-
-    const scriptPath = path.join(
-      __dirname,
-      "..",
-      "..",
-      "torrent-client",
-      "main.py"
-    );
-
-    cp.spawn("python3", [scriptPath, ...commonArgs], {
-      stdio: "inherit",
-    });
+    // NOOP
   }
 
   private static getTorrentStateName(state: TorrentState) {

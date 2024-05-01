@@ -22,8 +22,19 @@ import { Repack } from "./entity";
 import { Notification } from "electron";
 import { t } from "i18next";
 import { In } from "typeorm";
+import { Aria2Backend } from "./download-backends";
 
 startProcessWatcher();
+
+const aria2 = new Aria2Backend();
+// prettier-ignore
+aria2.connect().then(async () => {
+  await aria2.startDownload(10, "magnet:?xt=urn:btih:LZ4INVBKKKXGNWSFIHMIRAVAJ6NDJJSJ&dn=BigBuckBunny_124&tr=http%3A%2F%2Fbt1.archive.org%3A6969%2Fannounce");
+  while (true) {
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    console.log("progress:", await aria2.getDownloadProgress(10));
+  }
+});
 
 TorrentClient.startTorrentClient(writePipe.socketPath, readPipe.socketPath);
 
@@ -57,7 +68,7 @@ const track1337xUsers = async (existingRepacks: Repack[]) => {
   for (const repacker of repackers) {
     await getNewRepacksFromUser(
       repacker,
-      existingRepacks.filter((repack) => repack.repacker === repacker)
+      existingRepacks.filter((repack) => repack.repacker === repacker),
     );
   }
 };
@@ -71,13 +82,13 @@ const checkForNewRepacks = async () => {
 
   Promise.allSettled([
     getNewGOGGames(
-      existingRepacks.filter((repack) => repack.repacker === "GOG")
+      existingRepacks.filter((repack) => repack.repacker === "GOG"),
     ),
     getNewRepacksFromXatab(
-      existingRepacks.filter((repack) => repack.repacker === "Xatab")
+      existingRepacks.filter((repack) => repack.repacker === "Xatab"),
     ),
     getNewRepacksFromCPG(
-      existingRepacks.filter((repack) => repack.repacker === "CPG")
+      existingRepacks.filter((repack) => repack.repacker === "CPG"),
     ),
     // getNewRepacksFromOnlineFix(
     //   existingRepacks.filter((repack) => repack.repacker === "onlinefix")

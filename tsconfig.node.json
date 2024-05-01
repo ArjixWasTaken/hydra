@@ -12,7 +12,7 @@
     "paths": {
       "@main/*": ["src/main/*"],
       "@renderer/*": ["src/renderer/*"],
-      "@types": ["src/types/index.ts"],
+      "@types": ["src/types/index.ts", "src/main/*.d.ts"],
       "@locales": ["src/locales/index.ts"],
       "@resources": ["src/resources/index.ts"]
     }
